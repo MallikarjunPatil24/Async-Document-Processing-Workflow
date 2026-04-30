@@ -84,6 +84,9 @@ If you prefer running without Docker:
 | `GET` | `/api/export/json/{id}` | Export a single finalized document to JSON |
 | `WS` | `/ws/updates` | WebSocket endpoint for real-time progress events |
 
+## Demo video link - [https://www.loom.com/share/c0eb04fcdde646d685eca3f0b958f5be]
+## sample doc link for testing -[https://drive.google.com/file/d/1Uv-Bc7ZYlPjZ_GIiv-0OQ2omkbs-RKv2/view?usp=drive_link]
+
 ## 🔹 Assumptions
 1. **Document Format**: The system assumes uploaded files are predominantly PDFs for text extraction. Non-PDFs are accepted by the pipeline but will fallback to mocked text extraction.
 2. **Concurrency**: The worker is configured to use a ThreadPoolExecutor inside the Celery task to parallelize page extraction. It assumes the host machine has multiple cores available for thread-based parallelism.
