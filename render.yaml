@@ -1,0 +1,89 @@
+services:
+  # 1. The PostgreSQL Database
+  - type: web
+    name: adpws-db
+    env: docker
+    plan: free
+
+  # 2. The FastAPI Backend
+  - type: web
+    name: adpws-backend
+    env: python
+    buildCommand: "cd backend && pip install -r requirements.txt"
+    startCommand: "cd backend && uvicorn app.main:app --host 0.0.0.0 --port $PORT"
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: adpws-postgres
+          property: connectionString
+      - key: REDIS_URL
+        fromService:
+          type: redis
+          name: adpws-redis
+          property: connectionString
+      - key: CELERY_BROKER_URL
+        fromService:
+          type: redis
+          name: adpws-redis
+          property: connectionString
+      - key: CELERY_RESULT_BACKEND
+        fromService:
+          type: redis
+          name: adpws-redis
+          property: connectionString
+      - key: STORAGE_PATH
+        value: ./storage
+    disk:
+      name: storage
+      mountPath: /opt/render/project/src/backend/storage
+      sizeGB: 1
+
+  # 3. The Celery Worker
+  - type: worker
+    name: adpws-celery
+    env: python
+    buildCommand: "cd backend && pip install -r requirements.txt"
+    startCommand: "cd backend && celery -A app.worker.celery_app worker --loglevel=info"
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: adpws-postgres
+          property: connectionString
+      - key: REDIS_URL
+        fromService:
+          type: redis
+          name: adpws-redis
+          property: connectionString
+      - key: CELERY_BROKER_URL
+        fromService:
+          type: redis
+          name: adpws-redis
+          property: connectionString
+      - key: CELERY_RESULT_BACKEND
+        fromService:
+          type: redis
+          name: adpws-redis
+          property: connectionString
+      - key: STORAGE_PATH
+        value: ./storage
+    disk:
+      name: storage
+      mountPath: /opt/render/project/src/backend/storage
+      sizeGB: 1
+
+  # 4. The React Frontend
+  - type: web
+    name: adpws-frontend
+    env: static
+    buildCommand: "cd frontend && npm install && npm run build"
+    staticPublishPath: "./frontend/dist"
+    envVars:
+      - key: VITE_API_HOST
+        fromService:
+          type: web
+          name: adpws-backend
+          property: host
+
+databases:
+  - name: adpws-postgres
+    plan: free

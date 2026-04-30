@@ -5,7 +5,8 @@ export function useWebSocket() {
   const [lastMessage, setLastMessage] = useState<JobUpdate | null>(null);
 
   useEffect(() => {
-    const WS_URL = import.meta.env.VITE_WS_URL || 'ws://localhost:8001/ws/updates';
+    const host = import.meta.env.VITE_API_HOST;
+    const WS_URL = import.meta.env.VITE_WS_URL || (host ? `wss://${host}/ws/updates` : 'ws://localhost:8001/ws/updates');
     const ws = new WebSocket(WS_URL);
 
     ws.onmessage = (event) => {

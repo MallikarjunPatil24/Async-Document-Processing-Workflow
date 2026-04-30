@@ -1,6 +1,7 @@
 import type { Document } from '../types';
 
-const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:8001/api';
+const host = import.meta.env.VITE_API_HOST;
+const API_BASE = import.meta.env.VITE_API_URL || (host ? `https://${host}/api` : 'http://localhost:8001/api');
 
 const getSessionId = () => {
   let sessionId = localStorage.getItem('sessionId');
